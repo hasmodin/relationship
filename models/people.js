@@ -51,8 +51,6 @@ const addPerson = async() => {
     person1.tasks.push(task1);
     person1.tasks.push(task2);
 
-   
-
   let result =  await person1.save();
   console.log(result);
 }

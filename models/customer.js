@@ -32,6 +32,19 @@ const customerSchema = new  Schema({
     ]
 });
 
+// customerSchema.pre("findOneAndDelete", async() => {
+//     console.log("PRE MIDDLEWARE");
+// });
+
+customerSchema.post("findOneAndDelete", async(Customer) => {
+    if(Customer.orders.length) {
+     let result = await Order.deleteMany({_id: {$in: Customer.orders}});
+        console.log(result);
+    }
+})
+
+
+
 //creating order model
 const Order = mongoose.model("Order", orderSchema);
 
@@ -39,37 +52,41 @@ const Order = mongoose.model("Order", orderSchema);
 const Customer = mongoose.model("Customer", customerSchema);
 
 //add order to DB
-const addOrders = async() => {
-//    let result =  await Order.insertMany([
-//         {item:"somosa", price: 12},
-//         {item: "chips", price: 40},
-//         {item: "chocolate", price:100}
-//     ]);
-//     console.log(result);
+const addData = async() => {
+    let newcust = new Customer({
+        name: "Ehan Ansari",
+    })
+
+    let order1 = new Order(
+        {item:"samosa", price:10}
+    )
+    let order2 = new Order(
+        {item:"chips", price:40},
+    )
+    newcust.orders.push(order1);
+    newcust.orders.push(order2);
+    await order1.save();
+    await order2.save();
+   await newcust.save();
+   console.log("data is saved");
 }
-addOrders();
+// addData();
 
-//add customer to DB
-const addCustomer = async() => {
-    // const cust1 = new Customer({
-    //     name: "Ehan Ansari",  
-    // })
 
-    // const order1 = await Order.findOne({item: "chips"});
-    // const order2 = await Order.findOne({item: "chocolate"});
-    // cust1.orders.push(order1);
-    // cust1.orders.push(order2);
-
-    // let result = await cust1.save();
-    // console.log(result);
+const delCust = async() => {
+   const res = await Customer.findByIdAndDelete("66a8919b0c8a681f42606b37");
+   console.log(res);
 }
+delCust();
 
-addCustomer();
 
-//finding customer from DB.
-const findCustomer = async() => {
-    let result = await Customer.find({}).populate("orders");
-    console.log(result[1]);
-}
 
-findCustomer();
+
+
+
+
+// const delCust = async() => {
+//    let data = await Customer.findByIdAndDelete("66a5467cb44a9d60701a594f");
+//    console.log(data);
+// }
+// delCust();
